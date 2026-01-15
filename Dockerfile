@@ -5,6 +5,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# NOTE: Ne mets pas `git pull` dans un Dockerfile (image non reproductible + credentials).
+# Pour déployer: fais le pull sur l’hôte puis rebuild/restart (voir `deploy.sh`).
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
