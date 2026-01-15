@@ -1,0 +1,6 @@
+fastapi>=0.110
+pydantic>=2.0
+uvicorn[standard]>=0.24
+gunicorn>=21.2
+huggingface_hub>=0.22
+python-dotenv>=1.0

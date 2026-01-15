@@ -19,12 +19,13 @@ class AI:
         resp = self.client.chat_completion(
             model=self.MODEL_ID,
             messages=self.messages,
-            max_tokens=400,
+            #max_tokens=400,
             temperature=0.7,
             top_p=0.9,
         )
 
         assistant_text = resp.choices[0].message.get("content", "")
+        print(assistant_text)
         self.messages.append({"role": "assistant", "content": assistant_text})
         return f"{assistant_text}\n"
 
