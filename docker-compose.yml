@@ -9,9 +9,8 @@ services:
     expose:
       - "8000"
 
-    # Mets HF_TOKEN=... ici (ou dans .env.production)
-    env_file:
-      - .env.production
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
 
     labels:
       - traefik.enable=true
