@@ -1,7 +1,52 @@
 services:
-  api:
+  deepseek_api:
     build: .
-    ports:
-      - "8001:8001"
-    environment:
-      HF_TOKEN: ${HF_TOKEN}
+    image: deepseek_api:latest
+    container_name: deepseek_api
+    restart: always
+
+    # FastAPI (gunicorn) écoute sur 8000 dans le conteneur (voir Dockerfile).
+    expose:
+      - "8000"
+
+    # Mets HF_TOKEN=... ici (ou dans .env.production)
+    env_file:
+      - .env.production
+
+    labels:
+      - traefik.enable=true
+
+      # -------------------------
+      # Service: port interne
+      # -------------------------
+      - traefik.http.services.deepseek_api.loadbalancer.server.port=8000
+
+      # =========================================================
+      # Router HTTP (80): domaine -> redirige vers HTTPS
+      # =========================================================
+      - traefik.http.routers.deepseek_api-http.rule=Host(`ai.mapsante.net`)
+      - traefik.http.routers.deepseek_api-http.entrypoints=web
+      - traefik.http.routers.deepseek_api-http.middlewares=redirect-to-https
+      - traefik.http.routers.deepseek_api-http.service=deepseek_api
+
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
+
+      # =========================================================
+      # Router HTTPS (443) - 1: domaine principal -> app
+      # =========================================================
+      - traefik.http.routers.deepseek_api-root.rule=Host(`ai.mapsante.net`)
+      - traefik.http.routers.deepseek_api-root.entrypoints=websecure
+      - traefik.http.routers.deepseek_api-root.tls=true
+      - traefik.http.routers.deepseek_api-root.tls.certresolver=mytlschallenge
+      - traefik.http.routers.deepseek_api-root.service=deepseek_api
+
+    networks:
+      - n8n_default
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  n8n_default:
+    external: true
